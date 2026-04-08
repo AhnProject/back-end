@@ -1,27 +1,23 @@
 package com.devahn.domain.document;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
+/**
+ * 문서 엔티티
+ */
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Document {
     private Long id;
     private String title;
     private String content;
     private float[] embedding;
     private LocalDateTime createdAt;
-
-    // getter / setter
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
-
-    public String getContent() { return content; }
-    public void setContent(String content) { this.content = content; }
-
-    public float[] getEmbedding() { return embedding; }
-    public void setEmbedding(float[] embedding) { this.embedding = embedding; }
-
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    private LocalDateTime updatedAt;
 }
