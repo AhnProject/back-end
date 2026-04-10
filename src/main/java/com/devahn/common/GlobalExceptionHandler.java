@@ -1,8 +1,11 @@
 package com.devahn.common;
 
+import com.devahn.exception.AuthException;
 import com.devahn.exception.DocumentException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -28,6 +31,48 @@ public class GlobalExceptionHandler {
             e.getHttpStatus()
         );
         return ResponseEntity.status(e.getHttpStatus()).body(errorResponse);
+    }
+
+    /**
+     * AuthException 처리
+     */
+    @ExceptionHandler(AuthException.class)
+    public ResponseEntity<ErrorResponse> handleAuthException(AuthException e) {
+        log.error("AuthException 발생: [{}] {}", e.getErrorCode(), e.getMessage());
+        ErrorResponse errorResponse = ErrorResponse.of(
+            e.getErrorCode(),
+            e.getMessage(),
+            e.getHttpStatus()
+        );
+        return ResponseEntity.status(e.getHttpStatus()).body(errorResponse);
+    }
+
+    /**
+     * Spring Security AuthenticationException 처리
+     */
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException e) {
+        log.error("인증 실패: {}", e.getMessage());
+        ErrorResponse errorResponse = ErrorResponse.of(
+            "AUTHENTICATION_FAILED",
+            "인증에 실패했습니다",
+            401
+        );
+        return ResponseEntity.status(401).body(errorResponse);
+    }
+
+    /**
+     * Spring Security AccessDeniedException 처리
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException e) {
+        log.error("접근 거부: {}", e.getMessage());
+        ErrorResponse errorResponse = ErrorResponse.of(
+            "ACCESS_DENIED",
+            "접근 권한이 없습니다",
+            403
+        );
+        return ResponseEntity.status(403).body(errorResponse);
     }
 
     /**

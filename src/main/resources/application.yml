@@ -1,10 +1,9 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/vectordb
+    url: jdbc:postgresql://localhost:5432/vector_db
     username: postgres
-    password: "DevAhn##2026"
+    password: pgPasswd
     driver-class-name: org.postgresql.Driver
-
   sql:
     init:
       mode: never
@@ -14,4 +13,21 @@ mybatis:
   type-aliases-package: com.devahn.backend.domain
 
 server:
-   port: 8080
+  port: 8081
+
+# JWT 설정
+jwt:
+  secret: mySecretKeyForJWTTokenGenerationAndValidationMinimum256BitsLongForHS256Algorithm
+  expiration: 86400000  # 24시간 (밀리초)
+
+# Swagger 설정
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operations-sorter: alpha
+    tags-sorter: alpha
+    display-request-duration: true
