@@ -1,234 +1,237 @@
-# Document Vector Search API with JWT Authentication
+# Next.js API Migration
 
-Spring Boot 기반의 문서 벡터 검색 및 JWT 인증 API 서버입니다.
+Spring Boot 백엔드를 폐기하고 Next.js App Router 기반 API 서버로 전환한 프로젝트입니다.  
+배포 대상은 Vercel이며, 로컬에서는 Docker Compose로 pgvector PostgreSQL을 띄워 연결 상태와 API 흐름을 바로 확인할 수 있습니다.
 
-## 주요 기능
+## 프로젝트 위치
 
-- ✅ JWT 기반 사용자 인증 (회원가입/로그인)
-- ✅ 문서 CRUD 기능
-- ✅ PostgreSQL pgvector를 활용한 벡터 유사도 검색
-- ✅ Swagger/OpenAPI 자동 문서화
-- ✅ MVC 3-Layer 아키텍처 (Controller-Service-Repository)
-- ✅ 완전한 예외 처리 및 검증
+- Next.js 앱: [front-end](/C:/Github/back-end/front-end)
+- 로컬 DB 설정: [docker-compose.yml](/C:/Github/back-end/docker-compose.yml)
+- DB 초기화 SQL: [docker/db/init/01-init.sql](/C:/Github/back-end/docker/db/init/01-init.sql)
 
-## 기술 스택
+## 로컬 실행 순서
 
-- **Language**: Java 17
-- **Framework**: Spring Boot 3.5.11
-- **Security**: Spring Security + JWT
-- **Database**: PostgreSQL 16 + pgvector
-- **Persistence**: JDBC Template
-- **Documentation**: Swagger/OpenAPI 3
-- **Build**: Gradle
+### 1. pgvector 실행
 
-## 빠른 시작
+루트에서 실행:
 
-### 1. 데이터베이스 설정
-
-```bash
-# Docker로 PostgreSQL + pgvector 실행
-docker run --name postgres-vector \
-  -e POSTGRES_PASSWORD=pgPasswd \
-  -p 5432:5432 \
-  -d pgvector/pgvector:pg16
-
-# 데이터베이스 초기화
-docker exec -i postgres-vector psql -U postgres < init-db.sql
+```powershell
+docker compose up -d
 ```
 
-### 2. 애플리케이션 실행
+상태 확인:
 
-```bash
-# Gradle로 빌드 및 실행
-./gradlew bootRun
-
-# 또는 JAR 파일 생성 후 실행
-./gradlew build
-java -jar build/libs/back-end-0.0.1-SNAPSHOT.jar
+```powershell
+docker compose ps
 ```
 
-### 3. Swagger UI 접속
+기본 접속 정보:
 
-브라우저에서 다음 URL로 접속:
-```
-http://localhost:8080/swagger-ui.html
-```
+- Host: `localhost`
+- Port: `5432`
+- Database: `aidb`
+- Username: `postgres`
+- Password: `postgres`
 
-## API 문서
+초기화 시 자동 생성:
 
-모든 API는 **Swagger UI**에서 테스트 가능합니다. 아래는 주요 엔드포인트 목록입니다.
+- `vector` extension
+- `users` 테이블
+- `documents` 테이블
 
-### 🔐 인증 API
+### 2. 환경변수 준비
 
-| Method | Endpoint | 설명 | 인증 필요 |
-|--------|----------|------|-----------|
-| POST | `/api/auth/signup` | 회원가입 | ❌ |
-| POST | `/api/auth/login` | 로그인 | ❌ |
-
-### 📄 문서 API
-
-| Method | Endpoint | 설명 | 인증 필요 |
-|--------|----------|------|-----------|
-| POST | `/api/documents` | 문서 생성 | ✅ |
-| GET | `/api/documents/{id}` | 문서 조회 | ✅ |
-| GET | `/api/documents` | 전체 문서 조회 | ✅ |
-| PUT | `/api/documents/{id}` | 문서 수정 | ✅ |
-| DELETE | `/api/documents/{id}` | 문서 삭제 | ✅ |
-| POST | `/api/documents/search` | 벡터 검색 | ✅ |
-| GET | `/api/documents/health` | 헬스 체크 | ✅ |
-
-## 사용 방법
-
-### 1️⃣ 회원가입
-
-**Swagger UI에서:**
-1. `인증` 섹션 펼치기
-2. `POST /api/auth/signup` 클릭
-3. "Try it out" 버튼 클릭
-4. 아래 JSON 예제 복사하여 붙여넣기:
-
-```json
-{
-  "username": "john_doe",
-  "password": "password123!",
-  "email": "john@example.com"
-}
+```powershell
+Copy-Item front-end\.env.local.example front-end\.env.local
 ```
 
-5. "Execute" 버튼 클릭
-6. 응답에서 `accessToken` 복사
+최소 수정 항목:
 
-### 2️⃣ JWT 토큰 설정
+- `DATABASE_URL`
+- `JWT_SECRET`
+- `OPENAI_API_KEY`
 
-**Swagger UI 우측 상단:**
-1. "Authorize" 버튼 클릭 (🔓 자물쇠 아이콘)
-2. 복사한 토큰 붙여넣기 (Bearer 접두어 없이)
-3. "Authorize" 버튼 클릭
-4. "Close" 버튼 클릭
+예시:
 
-이제 모든 문서 API를 사용할 수 있습니다!
-
-### 3️⃣ 문서 생성
-
-**Swagger UI에서:**
-1. `문서` 섹션 펼치기
-2. `POST /api/documents` 클릭
-3. "Try it out" 버튼 클릭
-4. 아래 JSON 예제 복사하여 붙여넣기:
-
-```json
-{
-  "title": "첫 번째 문서",
-  "content": "이것은 테스트 문서입니다.",
-  "embedding": [0.1, 0.2, 0.3, 0.4, 0.5]
-}
+```env
+OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/aidb?schema=public
+JWT_SECRET=local-development-secret-change-this
+JWT_EXPIRATION=86400000
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+VECTOR_DIMENSION=1536
 ```
 
-5. "Execute" 버튼 클릭
+### 3. Next.js 앱 실행
 
-### 4️⃣ 벡터 검색
-
-**Swagger UI에서:**
-1. `POST /api/documents/search` 클릭
-2. "Try it out" 버튼 클릭
-3. 아래 JSON 예제 복사하여 붙여넣기:
-
-```json
-{
-  "embedding": [0.2, 0.3, 0.4, 0.5, 0.6],
-  "limit": 10,
-  "threshold": 0.7
-}
+```powershell
+cd front-end
+npm install
+npm run dev
 ```
 
-4. "Execute" 버튼 클릭
+개발 서버:
 
-## 환경 설정
+- `http://localhost:3000`
 
-`application.yml` 파일에서 설정 변경 가능:
+## 접속 URL
 
-```yaml
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/vector_db
-    username: postgres
-    password: pgPasswd
+- 홈: `http://localhost:3000`
+- 테스트 페이지: `http://localhost:3000/test-ui`
+- API 문서 UI: `http://localhost:3000/api-docs`
+- OpenAPI JSON: `http://localhost:3000/docs`
+- 문서 헬스체크: `http://localhost:3000/api/documents/health`
+- 추천 헬스체크: `http://localhost:3000/api/recommend`
 
-server:
-  port: 8080
+## `/api-docs` 여는 방법
 
-jwt:
-  secret: your-secret-key-minimum-256-bits
-  expiration: 86400000  # 24시간
+앱 실행 후 브라우저에서 아래 주소를 열면 됩니다.
+
+```text
+http://localhost:3000/api-docs
 ```
 
-## 데이터베이스 스키마
+원본 스펙 JSON은:
 
-### users 테이블
+```text
+http://localhost:3000/docs
+```
+
+## 실데이터가 없어도 가능한 테스트
+
+현재 실데이터가 없어도 아래는 바로 확인할 수 있습니다.
+
+- 회원가입 `/api/auth/signup`
+- 로그인 `/api/auth/login`
+- JWT 발급 여부
+- 보호 API 인증 성공/실패 여부
+- DB 연결 여부
+- 문서 API 헬스체크
+- docs 페이지 오픈 여부
+
+주의:
+
+- `/api/recommend`는 `OPENAI_API_KEY` 필요
+- `/api/documents`의 `POST`도 임베딩 자동 생성 때문에 `OPENAI_API_KEY` 필요
+
+즉, OpenAI 키가 없으면 추천과 문서 생성은 실패할 수 있지만, 인증과 DB 연결 테스트는 가능합니다.
+
+## 가장 빠른 테스트 절차
+
+1. 루트에서 `docker compose up -d`
+2. `front-end/.env.local` 생성
+3. `cd front-end`
+4. `npm install`
+5. `npm run dev`
+6. `http://localhost:3000/test-ui` 접속
+7. 회원가입 또는 로그인
+8. `http://localhost:3000/api-docs` 접속
+
+## DB 확인 명령
+
+로그:
+
+```powershell
+docker compose logs -f db
+```
+
+psql 접속:
+
+```powershell
+docker compose exec db psql -U postgres -d aidb
+```
+
+확인용 SQL:
+
 ```sql
-CREATE TABLE users (
-    id BIGSERIAL PRIMARY KEY,
-    username VARCHAR(50) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    role VARCHAR(20) DEFAULT 'USER',
-    created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP
-);
+\dt
+SELECT extname FROM pg_extension;
+SELECT COUNT(*) FROM users;
+SELECT COUNT(*) FROM documents;
 ```
 
-### documents 테이블
-```sql
-CREATE TABLE documents (
-    id BIGSERIAL PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    content TEXT NOT NULL,
-    embedding vector(1536),
-    created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP
-);
+종료:
+
+```powershell
+docker compose down
 ```
 
-## 프로젝트 구조
+볼륨까지 삭제:
 
-```
-src/main/java/com/devahn/
-├── config/              # 설정 (Security, Swagger)
-├── controller/          # REST API 컨트롤러
-├── service/             # 비즈니스 로직
-├── repository/          # 데이터 액세스
-├── domain/              # 엔티티 (User, Document)
-├── dto/                 # 요청/응답 DTO
-├── security/            # JWT 인증/인가
-├── exception/           # 예외 처리
-├── common/              # 공통 컴포넌트
-└── util/                # 유틸리티
+```powershell
+docker compose down -v
 ```
 
-## 트러블슈팅
+## Vercel 설정 방법
 
-### Swagger 500 에러 발생 시
-```bash
-# 의존성 재다운로드
-./gradlew clean build --refresh-dependencies
+### 1. 프로젝트 Import
+
+Vercel에서 이 저장소를 Import 합니다.
+
+중요:
+
+- Root Directory를 `front-end`로 설정해야 합니다.
+
+### 2. Build 설정
+
+현재 [front-end/package.json](/C:/Github/back-end/front-end/package.json)에 맞춰 아래로 동작합니다.
+
+- Install Command: `npm install`
+- Build Command: `npm run build`
+- Framework Preset: `Next.js`
+
+별도 서버 명령은 필요 없습니다.
+
+### 3. Vercel 환경변수 등록
+
+Vercel Dashboard > Project > Settings > Environment Variables 에 등록:
+
+- `DATABASE_URL`
+- `OPENAI_API_KEY`
+- `JWT_SECRET`
+- `JWT_EXPIRATION`
+- `NEXT_PUBLIC_APP_URL`
+
+예시:
+
+```env
+DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DATABASE?sslmode=require
+OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+JWT_SECRET=replace-with-a-long-random-secret
+JWT_EXPIRATION=86400000
+NEXT_PUBLIC_APP_URL=https://your-project.vercel.app
 ```
 
-### JWT 토큰 만료 시
-로그인 API를 다시 호출하여 새 토큰 발급
+### 4. 배포용 DB 주의사항
 
-### 데이터베이스 연결 실패 시
-```bash
-# PostgreSQL 컨테이너 상태 확인
-docker ps | grep postgres-vector
+Vercel에서는 로컬 Docker DB를 사용할 수 없습니다.  
+배포 시에는 외부 PostgreSQL이 필요합니다.
 
-# 로그 확인
-docker logs postgres-vector
+권장:
+
+- Neon
+- Vercel Postgres
+- Supabase Postgres
+
+필수:
+
+- `pgvector extension` 지원
+- SSL 연결 가능
+
+### 5. 배포 후 확인 URL
+
+예시 주소가 `https://example.vercel.app`라면:
+
+- `https://example.vercel.app/test-ui`
+- `https://example.vercel.app/api-docs`
+- `https://example.vercel.app/docs`
+- `https://example.vercel.app/api/documents/health`
+
+## 빌드 확인
+
+로컬에서 다음 빌드가 통과하도록 맞춰져 있습니다.
+
+```powershell
+cd front-end
+npm run build
 ```
-
-## 라이선스
-
-MIT License
-
-## 개발자
-
-DevAhn - dev@example.com
