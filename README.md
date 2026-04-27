@@ -235,3 +235,60 @@ Vercel에서는 로컬 Docker DB를 사용할 수 없습니다.
 cd front-end
 npm run build
 ```
+
+## 프로젝트 구동 방식
+
+현재 프로젝트는 `WebContent`를 Next.js 앱 루트로 사용하며, FE/BE를 물리적으로 분리한 구조입니다.
+
+- FE: `WebContent/app/FE`
+- BE API 진입점: `WebContent/app/BE/api/**/route.ts`
+- BE 내부 MVC: `WebContent/app/BE/backend/{controllers,services,repositories,models}`
+
+### 1) 로컬 구동 순서
+
+```powershell
+# 1. 루트에서 DB 실행
+docker compose up -d
+
+# 2. 환경변수 파일 준비 (최초 1회)
+Copy-Item WebContent\.env.local.example WebContent\.env.local
+
+# 3. 앱 실행
+cd WebContent
+npm install
+npm run dev
+```
+
+기본 접속:
+
+- 앱: `http://localhost:3000`
+- 테스트 UI: `http://localhost:3000/test-ui`
+- API 문서 UI: `http://localhost:3000/api-docs`
+- OpenAPI JSON: `http://localhost:3000/docs`
+
+### 2) 요청 처리 방식 (FE -> BE)
+
+FE는 `/api/...`로 호출하고, Next.js `rewrites`가 내부적으로 `/BE/api/...`로 연결합니다.
+
+- 외부 호출: `/api/auth/login`
+- 내부 매핑: `/BE/api/auth/login`
+
+동일하게 아래도 매핑됩니다.
+
+- `/docs` -> `/BE/docs`
+- `/api-docs` -> `/BE/api-docs`
+- `/test-ui` -> `/FE/test-ui`
+
+### 3) 운영(Vercel) 구동 방식
+
+Vercel에서는 Next.js 서버 런타임에서 Route Handler가 실행됩니다.
+DB(PostgreSQL + pgvector)와 OpenAI는 외부 서비스로 연결됩니다.
+
+필수 환경변수:
+
+- `DATABASE_URL`
+- `OPENAI_API_KEY`
+- `JWT_SECRET` (32자 이상 권장)
+- `JWT_EXPIRATION`
+- `NEXT_PUBLIC_APP_URL`
+- `VECTOR_DIMENSION` (기본 1536)
