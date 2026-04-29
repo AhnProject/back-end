@@ -1,0 +1,45 @@
+// ============================================================
+// Prisma Schema — AI 추천 시스템
+// .NET의 DbContext(EF Core) + Entity 클래스 역할 통합
+// ============================================================
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector]
+}
+
+// ─────────────────────────────────────────
+// Document 모델
+// ─────────────────────────────────────────
+model Document {
+  id        BigInt    @id @default(autoincrement())
+  title     String    @db.VarChar(255)
+  content   String    @db.Text
+  // pgvector 타입: $queryRaw로 직접 처리 (MyBatis 스타일)
+  embedding Unsupported("vector(1536)")?
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  @@map("documents")
+}
+
+// ─────────────────────────────────────────
+// User 모델 (Spring Boot User.java 완전 대응)
+// ─────────────────────────────────────────
+model User {
+  id        BigInt    @id @default(autoincrement())
+  username  String    @unique @db.VarChar(50)
+  password  String    @db.VarChar(255)
+  email     String    @unique @db.VarChar(100)
+  role      String    @default("USER") @db.VarChar(20)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  @@map("users")
+}

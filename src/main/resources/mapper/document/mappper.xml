@@ -1,6 +1,0 @@
-<select id="searchByVector" resultType="Document">
-    SELECT id, content
-    FROM documents
-    ORDER BY embedding <-> #{vector}
-    LIMIT 5
-</select>

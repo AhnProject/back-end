@@ -35,3 +35,10 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Next.js ###
+WebContent/node_modules/
+WebContent/.next/
+WebContent/.vercel/
+WebContent/.env.local
+WebContent/*.log
