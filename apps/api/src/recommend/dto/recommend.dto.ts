@@ -1,22 +1,8 @@
-import { IsString, IsNumber, IsInt, Min, Max, MinLength, MaxLength } from "class-validator";
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { z } from "zod";
 
-export class RecommendDto {
-  @ApiProperty()
-  @IsString()
-  @MinLength(1)
-  @MaxLength(500)
-  query!: string;
-
-  @ApiPropertyOptional()
-  @IsInt()
-  @Min(1)
-  @Max(20)
-  topK: number = 5;
-
-  @ApiPropertyOptional()
-  @IsNumber()
-  @Min(0)
-  @Max(1)
-  threshold: number = 0.5;
-}
+export const RecommendSchema = z.object({
+  query: z.string().min(1).max(500),
+  topK: z.number().int().min(1).max(20).optional().default(5),
+  threshold: z.number().min(0).max(1).optional().default(0.5),
+});
+export type RecommendDto = z.infer<typeof RecommendSchema>;

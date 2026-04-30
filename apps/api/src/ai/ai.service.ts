@@ -1,18 +1,13 @@
-import { Injectable } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
 import OpenAI from "openai";
 import { AppError } from "../common/errors/app.error";
 import { VECTOR_DIM } from "@reel-trip/utils";
 
-@Injectable()
 export class AiService {
   private getClient(): OpenAI {
-    const apiKey = this.config.get<string>("OPENAI_API_KEY");
+    const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) throw new AppError("OPENAI_API_KEY is required", "OPENAI_API_KEY_MISSING", 500);
     return new OpenAI({ apiKey });
   }
-
-  constructor(private readonly config: ConfigService) {}
 
   async createEmbedding(text: string): Promise<number[]> {
     const openai = this.getClient();

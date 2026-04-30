@@ -1,35 +1,14 @@
-import { IsEmail, IsString, MaxLength, MinLength } from "class-validator";
-import { ApiProperty } from "@nestjs/swagger";
+import { z } from "zod";
 
-export class SignupDto {
-  @ApiProperty()
-  @IsString()
-  @MinLength(3)
-  @MaxLength(50)
-  username!: string;
+export const SignupSchema = z.object({
+  username: z.string().min(3).max(50),
+  password: z.string().min(8).max(100),
+  email: z.string().email().max(100),
+});
+export type SignupDto = z.infer<typeof SignupSchema>;
 
-  @ApiProperty()
-  @IsString()
-  @MinLength(8)
-  @MaxLength(100)
-  password!: string;
-
-  @ApiProperty()
-  @IsEmail()
-  @MaxLength(100)
-  email!: string;
-}
-
-export class LoginDto {
-  @ApiProperty()
-  @IsString()
-  @MinLength(1)
-  @MaxLength(50)
-  username!: string;
-
-  @ApiProperty()
-  @IsString()
-  @MinLength(1)
-  @MaxLength(100)
-  password!: string;
-}
+export const LoginSchema = z.object({
+  username: z.string().min(1).max(50),
+  password: z.string().min(1).max(100),
+});
+export type LoginDto = z.infer<typeof LoginSchema>;

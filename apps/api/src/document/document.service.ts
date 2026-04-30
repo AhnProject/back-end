@@ -1,15 +1,11 @@
-import { Injectable } from "@nestjs/common";
 import { DocumentRepository } from "./document.repository";
 import { AiService } from "../ai/ai.service";
 import { DocumentError } from "../common/errors/app.error";
 import type { CreateDocumentDto, UpdateDocumentDto, SearchDocumentDto } from "./dto/document.dto";
 
-@Injectable()
 export class DocumentService {
-  constructor(
-    private readonly documentRepository: DocumentRepository,
-    private readonly aiService: AiService
-  ) {}
+  private readonly documentRepository = new DocumentRepository();
+  private readonly aiService = new AiService();
 
   async create(dto: CreateDocumentDto) {
     const embedding =

@@ -1,44 +1,18 @@
-import { IsString, IsNumber, IsArray, IsOptional, MaxLength, MinLength, IsInt, Min, Max } from "class-validator";
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { z } from "zod";
 
-export class CreateDocumentDto {
-  @ApiProperty()
-  @IsString()
-  @MinLength(1)
-  @MaxLength(255)
-  title!: string;
+export const CreateDocumentSchema = z.object({
+  title: z.string().min(1).max(255),
+  content: z.string().min(1),
+  embedding: z.array(z.number()).optional().nullable(),
+});
+export type CreateDocumentDto = z.infer<typeof CreateDocumentSchema>;
 
-  @ApiProperty()
-  @IsString()
-  @MinLength(1)
-  content!: string;
+export const UpdateDocumentSchema = CreateDocumentSchema;
+export type UpdateDocumentDto = z.infer<typeof UpdateDocumentSchema>;
 
-  @ApiPropertyOptional()
-  @IsArray()
-  @IsNumber({}, { each: true })
-  @IsOptional()
-  embedding?: number[] | null;
-}
-
-export class UpdateDocumentDto extends CreateDocumentDto {}
-
-export class SearchDocumentDto {
-  @ApiProperty()
-  @IsArray()
-  @IsNumber({}, { each: true })
-  embedding!: number[];
-
-  @ApiPropertyOptional()
-  @IsInt()
-  @Min(1)
-  @Max(20)
-  @IsOptional()
-  limit?: number = 10;
-
-  @ApiPropertyOptional()
-  @IsNumber()
-  @Min(0)
-  @Max(1)
-  @IsOptional()
-  threshold?: number;
-}
+export const SearchDocumentSchema = z.object({
+  embedding: z.array(z.number()),
+  limit: z.number().int().min(1).max(20).optional().default(10),
+  threshold: z.number().min(0).max(1).optional(),
+});
+export type SearchDocumentDto = z.infer<typeof SearchDocumentSchema>;

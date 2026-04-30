@@ -1,14 +1,10 @@
-import { Injectable } from "@nestjs/common";
 import { DocumentRepository } from "../document/document.repository";
 import { AiService } from "../ai/ai.service";
 import type { RecommendDto } from "./dto/recommend.dto";
 
-@Injectable()
 export class RecommendService {
-  constructor(
-    private readonly documentRepository: DocumentRepository,
-    private readonly aiService: AiService
-  ) {}
+  private readonly documentRepository = new DocumentRepository();
+  private readonly aiService = new AiService();
 
   async recommend(dto: RecommendDto) {
     const parsed = await this.aiService.parseAndEmbed(dto.query);

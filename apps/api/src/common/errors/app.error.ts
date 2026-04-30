@@ -1,12 +1,11 @@
-import { HttpException } from "@nestjs/common";
-
-export class AppError extends HttpException {
+export class AppError extends Error {
   constructor(
     message: string,
     public readonly errorCode: string,
-    httpStatus: number
+    public readonly httpStatus: number
   ) {
-    super({ message, errorCode, success: false }, httpStatus);
+    super(message);
+    this.name = "AppError";
   }
 }
 

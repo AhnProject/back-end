@@ -3,38 +3,27 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "build": "nest build",
-    "dev": "nest start --watch",
-    "start": "node dist/main",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
+    "dev": "next dev --port 4000",
+    "build": "next build",
+    "start": "next start --port 4000",
+    "lint": "next lint",
     "type-check": "tsc --noEmit",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf .next"
   },
   "dependencies": {
-    "@nestjs/common": "^11.1.0",
-    "@nestjs/core": "^11.1.0",
-    "@nestjs/platform-express": "^11.1.0",
-    "@nestjs/jwt": "^11.0.0",
-    "@nestjs/config": "^4.0.2",
-    "@nestjs/swagger": "^11.2.0",
     "@prisma/client": "^6.7.0",
     "@reel-trip/types": "*",
     "@reel-trip/utils": "*",
     "bcryptjs": "^2.4.3",
-    "class-transformer": "^0.5.1",
-    "class-validator": "^0.14.1",
+    "jose": "^5.9.6",
+    "next": "15.3.9",
     "openai": "^4.98.0",
-    "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.2",
     "zod": "^3.24.4"
   },
   "devDependencies": {
-    "@nestjs/cli": "^11.0.7",
-    "@nestjs/schematics": "^11.0.5",
-    "@nestjs/testing": "^11.1.0",
     "@types/bcryptjs": "^2.4.6",
-    "@types/express": "^5.0.1",
     "@types/node": "^20",
+    "@types/react": "^19",
     "prisma": "^6.7.0",
     "typescript": "^5.8.3"
   }
