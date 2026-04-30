@@ -11,17 +11,18 @@
     "clean": "rm -rf .next"
   },
   "dependencies": {
+    "@reel-trip/types": "*",
+    "@scalar/nextjs-api-reference": "^0.10.12",
     "next": "15.3.9",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "@reel-trip/types": "*"
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "typescript": "^5",
     "eslint": "^9",
-    "eslint-config-next": "15.3.9"
+    "eslint-config-next": "15.3.9",
+    "typescript": "^5"
   }
 }
