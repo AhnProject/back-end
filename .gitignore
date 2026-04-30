@@ -1,11 +1,55 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Turbo
+.turbo/
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Expo / React Native
+.expo/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Java / Gradle (legacy)
 HELP.md
 .gradle
-build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-
-### STS ###
 .apt_generated
 .classpath
 .factorypath
@@ -14,31 +58,7 @@ build/
 .springBeans
 .sts4-cache
 bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
-
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-out/
-!**/src/main/**/out/
-!**/src/test/**/out/
-
-### NetBeans ###
 /nbproject/private/
 /nbbuild/
-/dist/
 /nbdist/
 /.nb-gradle/
-
-### VS Code ###
-.vscode/
-
-### Next.js ###
-WebContent/node_modules/
-WebContent/.next/
-WebContent/.vercel/
-WebContent/.env.local
-WebContent/*.log

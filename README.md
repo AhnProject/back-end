@@ -1,294 +1,96 @@
-# Next.js API Migration
+# ReeL-Trip
 
-Spring Boot 백엔드를 폐기하고 Next.js App Router 기반 API 서버로 전환한 프로젝트입니다.  
-배포 대상은 Vercel이며, 로컬에서는 Docker Compose로 pgvector PostgreSQL을 띄워 연결 상태와 API 흐름을 바로 확인할 수 있습니다.
+AI 기반 여행지 추천 서비스 — Turborepo 모노레포
 
-## 프로젝트 위치
+## 기술 스택
 
-- Next.js 앱: [front-end](/C:/Github/back-end/front-end)
-- 로컬 DB 설정: [docker-compose.yml](/C:/Github/back-end/docker-compose.yml)
-- DB 초기화 SQL: [docker/db/init/01-init.sql](/C:/Github/back-end/docker/db/init/01-init.sql)
+| 영역 | 기술 |
+|------|------|
+| 웹 FE | Next.js 15 (App Router) |
+| 앱 FE | React Native (Expo) |
+| BE | NestJS + Prisma |
+| DB | PostgreSQL + pgvector |
+| AI | OpenAI (GPT-4o, text-embedding-3-small) |
+| 모노레포 | Turborepo |
+| 배포 | Vercel (web) · Railway (api) · EAS (mobile) |
 
-## 로컬 실행 순서
+## 프로젝트 구조
 
-### 1. pgvector 실행
-
-루트에서 실행:
-
-```powershell
-docker compose up -d
+```
+reel-trip/
+├── apps/
+│   ├── web/        # Next.js 웹 FE
+│   ├── api/        # NestJS BE (MVC)
+│   └── mobile/     # React Native (Expo)
+├── packages/
+│   ├── types/      # 공유 타입 정의
+│   └── utils/      # 공유 유틸함수
+├── turbo.json
+└── package.json
 ```
 
-상태 확인:
+## 시작하기
 
-```powershell
-docker compose ps
-```
+### 필수 환경
+- Node.js 20+
+- npm 10+
 
-기본 접속 정보:
+### 설치
 
-- Host: `localhost`
-- Port: `5432`
-- Database: `aidb`
-- Username: `postgres`
-- Password: `postgres`
-
-초기화 시 자동 생성:
-
-- `vector` extension
-- `users` 테이블
-- `documents` 테이블
-
-### 2. 환경변수 준비
-
-```powershell
-Copy-Item front-end\.env.local.example front-end\.env.local
-```
-
-최소 수정 항목:
-
-- `DATABASE_URL`
-- `JWT_SECRET`
-- `OPENAI_API_KEY`
-
-예시:
-
-```env
-OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/aidb?schema=public
-JWT_SECRET=local-development-secret-change-this
-JWT_EXPIRATION=86400000
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-VECTOR_DIMENSION=1536
-```
-
-### 3. Next.js 앱 실행
-
-```powershell
-cd front-end
+```bash
 npm install
+```
+
+### 환경변수 설정
+
+```bash
+# BE
+cp apps/api/.env.example apps/api/.env
+
+# Web
+cp apps/web/.env.example apps/web/.env.local
+
+# Mobile
+cp apps/mobile/.env.example apps/mobile/.env.local
+```
+
+### 개발 서버 실행
+
+```bash
+# 전체 동시 실행
 npm run dev
+
+# 개별 실행
+cd apps/api && npm run dev     # http://localhost:4000
+cd apps/web && npm run dev     # http://localhost:3000
+cd apps/mobile && npm run dev  # Expo Go
 ```
 
-개발 서버:
+### DB 마이그레이션
 
-- `http://localhost:3000`
-
-## 접속 URL
-
-- 홈: `http://localhost:3000`
-- 테스트 페이지: `http://localhost:3000/test-ui`
-- API 문서 UI: `http://localhost:3000/api-docs`
-- OpenAPI JSON: `http://localhost:3000/docs`
-- 문서 헬스체크: `http://localhost:3000/api/documents/health`
-- 추천 헬스체크: `http://localhost:3000/api/recommend`
-
-## `/api-docs` 여는 방법
-
-앱 실행 후 브라우저에서 아래 주소를 열면 됩니다.
-
-```text
-http://localhost:3000/api-docs
+```bash
+cd apps/api
+npx prisma db push
 ```
 
-원본 스펙 JSON은:
+## API 문서
 
-```text
-http://localhost:3000/docs
+NestJS 서버 실행 후:
+- Swagger UI: http://localhost:4000/api/docs
+
+## 배포
+
+### Web (Vercel)
+- Root Directory: `apps/web`
+- Build Command: `next build`
+
+### API (Railway)
+- Root Directory: `apps/api`
+- Build Command: `nest build`
+- Start Command: `node dist/main`
+
+### Mobile (EAS)
+```bash
+cd apps/mobile
+eas build --platform all
 ```
-
-## 실데이터가 없어도 가능한 테스트
-
-현재 실데이터가 없어도 아래는 바로 확인할 수 있습니다.
-
-- 회원가입 `/api/auth/signup`
-- 로그인 `/api/auth/login`
-- JWT 발급 여부
-- 보호 API 인증 성공/실패 여부
-- DB 연결 여부
-- 문서 API 헬스체크
-- docs 페이지 오픈 여부
-
-주의:
-
-- `/api/recommend`는 `OPENAI_API_KEY` 필요
-- `/api/documents`의 `POST`도 임베딩 자동 생성 때문에 `OPENAI_API_KEY` 필요
-
-즉, OpenAI 키가 없으면 추천과 문서 생성은 실패할 수 있지만, 인증과 DB 연결 테스트는 가능합니다.
-
-## 가장 빠른 테스트 절차
-
-1. 루트에서 `docker compose up -d`
-2. `front-end/.env.local` 생성
-3. `cd front-end`
-4. `npm install`
-5. `npm run dev`
-6. `http://localhost:3000/test-ui` 접속
-7. 회원가입 또는 로그인
-8. `http://localhost:3000/api-docs` 접속
-
-## DB 확인 명령
-
-로그:
-
-```powershell
-docker compose logs -f db
-```
-
-psql 접속:
-
-```powershell
-docker compose exec db psql -U postgres -d aidb
-```
-
-확인용 SQL:
-
-```sql
-\dt
-SELECT extname FROM pg_extension;
-SELECT COUNT(*) FROM users;
-SELECT COUNT(*) FROM documents;
-```
-
-종료:
-
-```powershell
-docker compose down
-```
-
-볼륨까지 삭제:
-
-```powershell
-docker compose down -v
-```
-
-## Vercel 설정 방법
-
-### 1. 프로젝트 Import
-
-Vercel에서 이 저장소를 Import 합니다.
-
-중요:
-
-- Root Directory를 `front-end`로 설정해야 합니다.
-
-### 2. Build 설정
-
-현재 [front-end/package.json](/C:/Github/back-end/front-end/package.json)에 맞춰 아래로 동작합니다.
-
-- Install Command: `npm install`
-- Build Command: `npm run build`
-- Framework Preset: `Next.js`
-
-별도 서버 명령은 필요 없습니다.
-
-### 3. Vercel 환경변수 등록
-
-Vercel Dashboard > Project > Settings > Environment Variables 에 등록:
-
-- `DATABASE_URL`
-- `OPENAI_API_KEY`
-- `JWT_SECRET`
-- `JWT_EXPIRATION`
-- `NEXT_PUBLIC_APP_URL`
-
-예시:
-
-```env
-DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DATABASE?sslmode=require
-OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-JWT_SECRET=replace-with-a-long-random-secret
-JWT_EXPIRATION=86400000
-NEXT_PUBLIC_APP_URL=https://your-project.vercel.app
-```
-
-### 4. 배포용 DB 주의사항
-
-Vercel에서는 로컬 Docker DB를 사용할 수 없습니다.  
-배포 시에는 외부 PostgreSQL이 필요합니다.
-
-권장:
-
-- Neon
-- Vercel Postgres
-- Supabase Postgres
-
-필수:
-
-- `pgvector extension` 지원
-- SSL 연결 가능
-
-### 5. 배포 후 확인 URL
-
-예시 주소가 `https://example.vercel.app`라면:
-
-- `https://example.vercel.app/test-ui`
-- `https://example.vercel.app/api-docs`
-- `https://example.vercel.app/docs`
-- `https://example.vercel.app/api/documents/health`
-
-## 빌드 확인
-
-로컬에서 다음 빌드가 통과하도록 맞춰져 있습니다.
-
-```powershell
-cd front-end
-npm run build
-```
-
-## 프로젝트 구동 방식
-
-현재 프로젝트는 `WebContent`를 Next.js 앱 루트로 사용하며, FE/BE를 물리적으로 분리한 구조입니다.
-
-- FE: `WebContent/app/FE`
-- BE API 진입점: `WebContent/app/BE/api/**/route.ts`
-- BE 내부 MVC: `WebContent/app/BE/backend/{controllers,services,repositories,models}`
-
-### 1) 로컬 구동 순서
-
-```powershell
-# 1. 루트에서 DB 실행
-docker compose up -d
-
-# 2. 환경변수 파일 준비 (최초 1회)
-Copy-Item WebContent\.env.local.example WebContent\.env.local
-
-# 3. 앱 실행
-cd WebContent
-npm install
-npm run dev
-```
-
-기본 접속:
-
-- 앱: `http://localhost:3000`
-- 테스트 UI: `http://localhost:3000/test-ui`
-- API 문서 UI: `http://localhost:3000/api-docs`
-- OpenAPI JSON: `http://localhost:3000/docs`
-
-### 2) 요청 처리 방식 (FE -> BE)
-
-FE는 `/api/...`로 호출하고, Next.js `rewrites`가 내부적으로 `/BE/api/...`로 연결합니다.
-
-- 외부 호출: `/api/auth/login`
-- 내부 매핑: `/BE/api/auth/login`
-
-동일하게 아래도 매핑됩니다.
-
-- `/docs` -> `/BE/docs`
-- `/api-docs` -> `/BE/api-docs`
-- `/test-ui` -> `/FE/test-ui`
-
-### 3) 운영(Vercel) 구동 방식
-
-Vercel에서는 Next.js 서버 런타임에서 Route Handler가 실행됩니다.
-DB(PostgreSQL + pgvector)와 OpenAI는 외부 서비스로 연결됩니다.
-
-필수 환경변수:
-
-- `DATABASE_URL`
-- `OPENAI_API_KEY`
-- `JWT_SECRET` (32자 이상 권장)
-- `JWT_EXPIRATION`
-- `NEXT_PUBLIC_APP_URL`
-- `VECTOR_DIMENSION` (기본 1536)
