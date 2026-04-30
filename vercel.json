@@ -1,7 +1,6 @@
 {
-  "buildCommand": "cd ../.. && npx turbo run build --filter=@reel-trip/web...",
-  "outputDirectory": ".next",
-  "installCommand": "cd ../.. && npm install",
-  "framework": "nextjs",
-  "rootDirectory": "apps/web"
+  "buildCommand": "npx turbo run build --filter=@reel-trip/web...",
+  "outputDirectory": "apps/web/.next",
+  "installCommand": "npm install",
+  "framework": "nextjs"
 }
