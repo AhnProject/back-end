@@ -1,0 +1,30 @@
+{
+  "name": "@reel-trip/api",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 4000",
+    "build": "prisma generate && next build",
+    "start": "next start --port 4000",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf .next"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.7.0",
+    "@reel-trip/types": "*",
+    "@reel-trip/utils": "*",
+    "bcryptjs": "^2.4.3",
+    "jose": "^5.9.6",
+    "next": "15.3.9",
+    "openai": "^4.98.0",
+    "zod": "^3.24.4"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "prisma": "^6.7.0",
+    "typescript": "^5.8.3"
+  }
+}
