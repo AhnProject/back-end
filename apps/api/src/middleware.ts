@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS?.split(",") ?? [
+const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS?.split(",").map((o) => o.trim()) ?? [
   "http://localhost:3000",
 ];
 
@@ -9,10 +9,13 @@ export function middleware(request: NextRequest) {
   const isAllowed = ALLOWED_ORIGINS.includes(origin);
 
   if (request.method === "OPTIONS") {
+    if (!isAllowed) {
+      return new NextResponse(null, { status: 403 });
+    }
     return new NextResponse(null, {
       status: 204,
       headers: {
-        "Access-Control-Allow-Origin": isAllowed ? origin : "",
+        "Access-Control-Allow-Origin": origin,
         "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
         "Access-Control-Allow-Credentials": "true",
