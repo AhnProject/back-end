@@ -1,9 +1,9 @@
 import { ApiReference } from "@scalar/nextjs-api-reference";
 
 export const GET = ApiReference({
-  url: "/BE/docs",
+  url: "/docs/spec",
   theme: "kepler",
-  darkMode: false,
+  darkMode: true,
   defaultOpenAllTags: true,
-  pageTitle: "Next.js Migrated API Docs",
+  pageTitle: "ReeL-Trip API Docs",
 });
