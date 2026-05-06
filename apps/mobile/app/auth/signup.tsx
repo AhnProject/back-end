@@ -2,7 +2,7 @@ import { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
 import { apiRequest } from "@/lib/api-client";
-import { saveToken } from "@/lib/auth-store";
+import { saveToken, saveUsername } from "@/lib/auth-store";
 import type { AuthResponse } from "@reel-trip/types";
 
 export default function SignupScreen() {
@@ -21,6 +21,7 @@ export default function SignupScreen() {
       });
       if (res.success && res.data) {
         await saveToken(res.data.accessToken);
+        await saveUsername(res.data.username);
         router.replace("/(tabs)");
       } else {
         setError(res.message);
